@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    app.openshift.io/vcs-ref: 28add871fe830fa27afad7f34e3c242eca0cd48e
+    app.openshift.io/vcs-uri: https://github.com/cloud-native-garage-method-cohort/distroless-express
+  labels:
+    app: the-best-group-4-project
+    app.kubernetes.io/instance: the-best-group-4-project
+    app.kubernetes.io/name: the-best-group-4-project-the-best-group-4-project
+    app.openshift.io/runtime: js
+  name: distroless-app
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: the-best-group-4-project
+    app.kubernetes.io/instance: the-best-group-4-project
+    app.kubernetes.io/name: the-best-group-4-project-the-best-group-4-project
+    app.openshift.io/runtime: js
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.openshift.io/vcs-ref: 28add871fe830fa27afad7f34e3c242eca0cd48e
+    app.openshift.io/vcs-uri: https://github.com/cloud-native-garage-method-cohort/distroless-express
+  labels:
+    app: the-best-group-4-project
+    app.kubernetes.io/instance: the-best-group-4-project
+    app.kubernetes.io/name: the-best-group-4-project-the-best-group-4-project
+    app.openshift.io/runtime: js
+  name: distroless-app
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: the-best-group-4-project
+      app.kubernetes.io/instance: the-best-group-4-project
+      app.kubernetes.io/name: the-best-group-4-project-the-best-group-4-project
+      app.openshift.io/runtime: js
+  template:
+    metadata:
+      annotations:
+        app.openshift.io/vcs-ref: 28add871fe830fa27afad7f34e3c242eca0cd48e
+        app.openshift.io/vcs-uri: https://github.com/cloud-native-garage-method-cohort/distroless-express
+      labels:
+        app: the-best-group-4-project
+        app.kubernetes.io/instance: the-best-group-4-project
+        app.kubernetes.io/name: the-best-group-4-project-the-best-group-4-project
+        app.openshift.io/runtime: js
+    spec:
+      containers:
+      - env:
+        - name: INGRESS_HOST
+        - name: PROTOCOLS
+        - name: LOG_LEVEL
+          value: debug
+        image: quay.io/alex_best_ibm/the-best-group-4-project:28add871fe830fa27afad7f34e3c242eca0cd48e
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ingress
+            port: 3000
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: distroless-app
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: http
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    app.openshift.io/vcs-ref: 28add871fe830fa27afad7f34e3c242eca0cd48e
+    app.openshift.io/vcs-uri: https://github.com/cloud-native-garage-method-cohort/distroless-express
+    argocd.argoproj.io/sync-options: Validate=false
+    openshift.io/host.generated: "true"
+  labels:
+    app: the-best-group-4-project
+    app.kubernetes.io/instance: the-best-group-4-project
+    app.kubernetes.io/name: the-best-group-4-project-the-best-group-4-project
+    app.openshift.io/runtime: js
+  name: distroless-app
+spec:
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: distroless-app
+    weight: 100
+  wildcardPolicy: None
